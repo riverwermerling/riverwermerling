@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Steady Volume: hear every word, skip the jolts</title>
+  <meta name="description" content="Films are mixed for cinemas, not living rooms. Steady Volume brings whispers up and explosions down, automatically.">
+  <meta name="theme-color" content="#f4f1ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e131d" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="Steady Volume">
+  <meta property="og:description" content="Hear every word. Skip the jolts. Whispers up, explosions down, automatically.">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Steady Volume home">
+        <img src="assets/icon.svg" alt="" width="32" height="32">
+        <span>Steady Volume</span>
+      </a>
+      <nav aria-label="Main">
+        <a href="#how">How it works</a>
+        <a href="#tv">On your TV</a>
+        <a href="#box" class="nav-cta">Steady Box</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">For films, TV and everything in between</p>
+          <h1>Hear every word.<br><span class="accent">Skip the jolts.</span></h1>
+          <p class="lede">Films are mixed for cinemas, not living rooms. Steady Volume brings whispers up and explosions down, automatically, so you can put the remote away.</p>
+          <div class="cta-row">
+            <a class="button primary" href="#tv" data-track="hero_tv">Fix it on my TV</a>
+            <a class="button ghost" href="#computer" data-track="hero_computer">On my computer</a>
+          </div>
+        </div>
+
+        <figure class="card hero-graph" aria-label="Animated graph: the film's volume jumps up and down, while the volume you hear with Steady Volume stays level.">
+          <div class="graph-head">
+            <span class="graph-title">What you hear</span>
+            <span class="legend">
+              <span><i class="key key-in"></i>Film as mixed</span>
+              <span><i class="key key-out"></i>With Steady Volume</span>
+            </span>
+          </div>
+          <div class="graph-stage">
+            <canvas id="hero-graph" aria-hidden="true"></canvas>
+            <span class="scene-label" id="scene-label" aria-hidden="true"></span>
+          </div>
+          <figcaption>The grey is the film as it was mixed. The line is what reaches your ears.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Problem -->
+    <section class="section" aria-labelledby="problem-title">
+      <div class="wrap">
+        <h2 class="section-title" id="problem-title">Sound familiar?</h2>
+        <div class="grid-3 reveal">
+          <article class="card feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 9v6M16 5v14M20 11v2"/></svg>
+            </div>
+            <h3>Turning it up to catch the dialogue</h3>
+            <p>Then turning it straight back down when the music kicks in.</p>
+          </article>
+          <article class="card feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+            </div>
+            <h3>Jumping out of your seat</h3>
+            <p>A door slams or a car explodes, and the whole house hears it.</p>
+          </article>
+          <article class="card feature">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M13 15h4M7 11h10"/></svg>
+            </div>
+            <h3>Subtitles on, just to keep up</h3>
+            <p>Not because you want them, but because the voices get lost.</p>
+          </article>
+        </div>
+        <p class="note-center reveal">It isn&rsquo;t your hearing, and it isn&rsquo;t your TV. Cinema sound has huge gaps between quiet and loud. Steady Volume closes them.</p>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section alt" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <h2 class="section-title" id="how-title">What it does</h2>
+        <p class="section-lede">The same tricks TV broadcasters use, working quietly in the background.</p>
+        <ol class="steps reveal">
+          <li class="card"><span class="step-n">1</span><h3>Lifts the voices</h3><p>A gentle boost where speech lives, so consonants come through clearly. That&rsquo;s the part of speech ears lose first.</p></li>
+          <li class="card"><span class="step-n">2</span><h3>Evens out scenes</h3><p>Quiet scenes are raised slowly and loud scenes brought down, so you set the volume once.</p></li>
+          <li class="card"><span class="step-n">3</span><h3>Catches the jolts</h3><p>A hard ceiling stops sudden bangs and jump-scares in milliseconds. Nothing gets past it.</p></li>
+        </ol>
+        <div class="proof card reveal">
+          <div>
+            <p class="proof-number">39&nbsp;dB &rarr; 12&nbsp;dB</p>
+            <p class="proof-label">Gap between the quietest and loudest scenes in our test soundtrack, before and after.</p>
+          </div>
+          <p class="proof-text">In plain terms: without it, the loud parts sound roughly <strong>fifteen times</strong> louder than the whispers. With it, they sit comfortably together.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TV guide -->
+    <section class="section" id="tv" aria-labelledby="tv-title">
+      <div class="wrap">
+        <h2 class="section-title" id="tv-title">Fix it on your TV tonight, for free</h2>
+        <p class="section-lede">Most TVs have a hidden setting that helps. It&rsquo;s buried several menus deep and named differently on every brand. Pick yours and we&rsquo;ll show you exactly where it is.</p>
+
+        <div class="guide card reveal">
+          <div class="brands" role="tablist" aria-label="TV or streaming device brand" id="brands"></div>
+          <div class="guide-body" id="guide" role="tabpanel" aria-live="polite">
+            <p class="guide-empty">Choose your TV or streaming box above.</p>
+          </div>
+        </div>
+        <p class="fineprint">Menus vary between models and years. Brand names are trademarks of their owners; Steady Volume isn&rsquo;t affiliated with them.</p>
+      </div>
+    </section>
+
+    <!-- Steady Box -->
+    <section class="section box-section" id="box" aria-labelledby="box-title">
+      <div class="wrap box-grid">
+        <div class="box-visual reveal" aria-hidden="true">
+          <svg viewBox="0 0 420 320" class="box-svg">
+            <defs>
+              <linearGradient id="boxTop" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#27334d"/>
+                <stop offset="1" stop-color="#16213a"/>
+              </linearGradient>
+              <linearGradient id="boxSide" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#101a2e"/>
+                <stop offset="1" stop-color="#0a1222"/>
+              </linearGradient>
+              <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0" stop-color="#45c9b7" stop-opacity="0.55"/>
+                <stop offset="1" stop-color="#45c9b7" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="210" cy="250" rx="150" ry="22" class="box-shadow"/>
+            <path d="M92 214c0-13 8-22 22-22h192c14 0 22 9 22 22v14c0 10-8 18-18 18H110c-10 0-18-8-18-18z" fill="url(#boxSide)"/>
+            <rect x="92" y="130" width="236" height="98" rx="24" fill="url(#boxTop)"/>
+            <rect x="92.5" y="130.5" width="235" height="97" rx="23.5" fill="none" stroke="#ffffff" stroke-opacity="0.08"/>
+            <ellipse cx="210" cy="179" rx="70" ry="32" fill="url(#glow)" class="box-glow"/>
+            <g fill="#45c9b7" class="box-bars">
+              <rect x="176" y="170" width="6" height="18" rx="3"/>
+              <rect x="188" y="164" width="6" height="30" rx="3"/>
+              <rect x="200" y="170" width="6" height="18" rx="3"/>
+              <rect x="212" y="170" width="6" height="18" rx="3"/>
+              <rect x="224" y="170" width="6" height="18" rx="3"/>
+              <rect x="236" y="170" width="6" height="18" rx="3"/>
+            </g>
+            <path d="M328 196c40 0 52 30 92 30" fill="none" stroke="#8a93a3" stroke-width="7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="box-copy">
+          <p class="eyebrow">Coming soon</p>
+          <h2 class="section-title left" id="box-title">The Steady Box</h2>
+          <p class="section-lede left">A small box that plugs into the back of any TV and fixes the sound for everything it plays: Netflix, live TV, DVDs, the lot.</p>
+          <ul class="checks">
+            <li><strong>Nothing to set up.</strong> Plug it in and it just works.</li>
+            <li><strong>Keeps your remote.</strong> The TV remote still controls the volume.</li>
+            <li><strong>Works with any TV</strong> made in the last decade.</li>
+          </ul>
+          <p class="price"><span class="price-amount" id="price"></span> <span class="price-note">expected price</span></p>
+
+          <form class="card signup" id="signup" novalidate>
+            <h3>Reserve yours</h3>
+            <p class="signup-sub">No payment now. We&rsquo;ll email you once, when it&rsquo;s ready.</p>
+            <label class="field">
+              <span>Email</span>
+              <input type="email" name="email" autocomplete="email" required placeholder="you@example.com">
+            </label>
+            <fieldset class="field">
+              <legend>Who is it for?</legend>
+              <div class="chips">
+                <label><input type="radio" name="for" value="me" required><span>Me</span></label>
+                <label><input type="radio" name="for" value="parent"><span>A parent</span></label>
+                <label><input type="radio" name="for" value="other"><span>Someone else</span></label>
+              </div>
+            </fieldset>
+            <label class="field">
+              <span>TV brand <em>(optional)</em></span>
+              <select name="tv">
+                <option value="">Choose…</option>
+              </select>
+            </label>
+            <button class="button primary wide" type="submit">Reserve my place</button>
+            <p class="form-error" id="signup-error" role="alert" hidden></p>
+            <p class="consent">We&rsquo;ll only use your email to tell you about the Steady Box. Unsubscribe any time.</p>
+          </form>
+          <div class="card thanks" id="thanks" hidden tabindex="-1">
+            <div class="thanks-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4L19 7"/></svg></div>
+            <h3>You&rsquo;re on the list</h3>
+            <p>Thank you. We&rsquo;ll be in touch when the Steady Box is ready. In the meantime, the free TV guide above can help tonight.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Computer -->
+    <section class="section alt" id="computer" aria-labelledby="computer-title">
+      <div class="wrap computer-grid">
+        <div>
+          <h2 class="section-title left" id="computer-title">On your computer</h2>
+          <p class="section-lede left">A free browser extension that works on YouTube, iPlayer, Netflix and every other site. Install it once and forget about it.</p>
+          <ul class="browsers">
+            <li>Chrome</li><li>Edge</li><li>Firefox</li><li>Brave</li><li>Opera</li><li class="soon">Safari <em>soon</em></li>
+          </ul>
+          <button class="button primary" type="button" id="beta-open" data-track="extension_beta">Join the free beta</button>
+        </div>
+        <figure class="popup-shot reveal">
+          <img src="assets/popup.png" alt="The Steady Volume extension: a large On switch, a live graph of the sound, and a choice of Gentle, Balanced or Night." width="360" loading="lazy">
+        </figure>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" aria-labelledby="faq-title">
+      <div class="wrap narrow">
+        <h2 class="section-title" id="faq-title">Questions</h2>
+        <div class="faq reveal">
+          <details>
+            <summary>Does it change the film?</summary>
+            <p>Only how loud each moment is. Nothing is cut, and the music and effects are all still there. You can switch it off at any time to hear the original mix.</p>
+          </details>
+          <details>
+            <summary>Will it help with hearing loss?</summary>
+            <p>Many people with mild hearing loss find dialogue much easier to follow, because voices are lifted and loud sounds no longer force the volume down. It isn&rsquo;t a medical device and doesn&rsquo;t replace hearing aids.</p>
+          </details>
+          <details>
+            <summary>Does the extension read what I watch?</summary>
+            <p>No. It only adjusts the volume of sound as it plays, on your own computer. It doesn&rsquo;t record, store or send anything anywhere.</p>
+          </details>
+          <details>
+            <summary>Why not just use my TV&rsquo;s setting?</summary>
+            <p>Please do, and our guide above shows you where it is. Built-in settings are often designed for loud adverts rather than loud scenes, and vary a lot between brands. The Steady Box is tuned specifically for films.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span class="brand small"><img src="assets/icon.svg" alt="" width="22" height="22">Steady Volume</span>
+      <span>Made for everyone who&rsquo;s ever reached for the remote mid-film.</span>
+    </div>
+  </footer>
+
+  <dialog class="card dialog" id="beta" aria-labelledby="beta-title">
+    <form id="beta-form" novalidate>
+      <h3 id="beta-title">Join the free beta</h3>
+      <p class="signup-sub">We&rsquo;ll send you the extension as soon as it&rsquo;s in the Chrome, Edge and Firefox stores.</p>
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" autocomplete="email" required placeholder="you@example.com">
+      </label>
+      <p class="form-error" id="beta-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="button ghost" type="button" id="beta-close">Not now</button>
+        <button class="button primary" type="submit">Send it to me</button>
+      </div>
+    </form>
+    <div class="beta-thanks" id="beta-thanks" hidden>
+      <div class="thanks-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4L19 7"/></svg></div>
+      <h3>Thanks, you&rsquo;re in</h3>
+      <p>We&rsquo;ll email you the moment it&rsquo;s ready.</p>
+      <button class="button primary" type="button" id="beta-done">Done</button>
+    </div>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="tv-guides.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
