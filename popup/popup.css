@@ -1,0 +1,138 @@
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #16213a;
+  --muted: #5a6478;
+  --border: #d8dde6;
+  --accent: #127a6e;
+  --accent-text: #ffffff;
+  --off: #8a93a3;
+  --focus: #1d5fd1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161f;
+    --surface: #1b212c;
+    --text: #eef1f6;
+    --muted: #a3acbb;
+    --border: #2e3746;
+    --accent: #3ec1b0;
+    --accent-text: #0c1a18;
+    --off: #4a5363;
+    --focus: #7aa7ff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: 340px;
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 650;
+}
+
+.power {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.power[aria-checked="false"] {
+  background: var(--off);
+  color: #ffffff;
+}
+
+.power-state {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.power-hint {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+fieldset {
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+fieldset:disabled { opacity: 0.45; }
+
+legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.preset {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.preset:has(input:checked) { border-color: var(--accent); }
+
+.preset input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.preset strong {
+  display: block;
+  font-size: 16px;
+}
+
+.preset span {
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.preset strong { color: var(--text); }
+
+.status {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Steady Volume</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon48.png" alt="" width="32" height="32">
+    <h1>Steady Volume</h1>
+  </header>
+
+  <button id="power" class="power" role="switch" aria-checked="true">
+    <span class="power-state" id="power-state">On</span>
+    <span class="power-hint" id="power-hint">Whispers and explosions kept at one level</span>
+  </button>
+
+  <fieldset id="presets">
+    <legend>How much evening-out?</legend>
+    <label class="preset">
+      <input type="radio" name="preset" value="gentle">
+      <span><strong>Gentle</strong>Takes the edge off. The film still sounds like the film.</span>
+    </label>
+    <label class="preset">
+      <input type="radio" name="preset" value="balanced">
+      <span><strong>Balanced</strong>No more reaching for the remote. Best for most people.</span>
+    </label>
+    <label class="preset">
+      <input type="radio" name="preset" value="night">
+      <span><strong>Night</strong>Clear voices, soft bangs. For late nights and sensitive ears.</span>
+    </label>
+  </fieldset>
+
+  <p class="status" id="status" aria-live="polite"></p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

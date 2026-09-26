@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="28" fill="#16213a"/>
+  <!-- Level bars: uneven on the left, evened out on the right -->
+  <g fill="#3ec1b0">
+    <rect x="18" y="58" width="10" height="12" rx="5"/>
+    <rect x="34" y="26" width="10" height="76" rx="5"/>
+    <rect x="50" y="50" width="10" height="28" rx="5"/>
+    <rect x="68" y="44" width="10" height="40" rx="5"/>
+    <rect x="84" y="44" width="10" height="40" rx="5"/>
+    <rect x="100" y="44" width="10" height="40" rx="5"/>
+  </g>
+</svg>
