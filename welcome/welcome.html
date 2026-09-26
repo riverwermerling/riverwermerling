@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to Steady Volume</title>
+  <link rel="stylesheet" href="../popup/popup.css">
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../icons/icon128.png" alt="" width="56" height="56">
+      <h1>Steady Volume</h1>
+    </header>
+
+    <section id="needs-access" class="card attention" hidden>
+      <h2>One last step</h2>
+      <p>Your browser asks before an extension can work on websites. Steady Volume only listens to the sound of videos and never reads or sends anything.</p>
+      <button id="grant" class="big-button">Allow on all websites</button>
+    </section>
+
+    <section id="ready" class="card" hidden>
+      <h2>You&rsquo;re all set</h2>
+      <p>Play any film or programme, on any website. Whispers come up, explosions come down. There&rsquo;s nothing else to do.</p>
+    </section>
+
+    <section class="card">
+      <h2>Good to know</h2>
+      <ul>
+        <li><strong>Want it stronger or gentler?</strong> Click the Steady Volume icon in your toolbar. If you can&rsquo;t see it, click the puzzle-piece icon and pin it.</li>
+        <li><strong>Already had a video open?</strong> Reload that page once.</li>
+        <li><strong>Want the film exactly as mixed?</strong> Click the icon and switch it Off. Switch it back On any time.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../popup/access.js"></script>
+  <script src="welcome.js"></script>
+</body>
+</html>

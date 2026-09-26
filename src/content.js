@@ -55,6 +55,9 @@
       return false;
     }
     if (url.protocol === 'blob:' || url.protocol === 'data:') return true;
+    // Safari plays HLS playlists natively, and its Web Audio outputs silence
+    // for them whatever the origin.
+    if (/\.m3u8$/i.test(url.pathname)) return false;
     if (url.origin === location.origin) return true;
     // With a crossorigin attribute the browser only plays it if CORS passed.
     return el.crossOrigin !== null;

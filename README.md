@@ -32,36 +32,54 @@ Measured on a test soundtrack (whisper, explosion, dialogue, jump-scare, quiet d
 | Balanced (default) | 12 dB |
 | Night | **9 dB** |
 
+## Browser support
+
+| Browser | Package | Status |
+|---|---|---|
+| Chrome, Edge, Brave, Opera, Vivaldi | `dist/chromium` | Automated tests pass in Chromium |
+| Firefox (desktop and Android) | `dist/firefox` | Passes Mozilla's `web-ext lint`; not yet run by hand |
+| Safari (Mac, iPhone, iPad) | `dist/safari` | Needs a Mac to wrap and submit; not yet run by hand |
+
+After install, a welcome page opens. On Firefox and Safari, where the browser asks before an extension can touch websites, that page (and the popup) has one **Allow on all websites** button.
+
 ## Try it
 
-**Chrome / Edge / Brave / Opera**
+**Chrome / Edge / Brave / Opera / Vivaldi**
 
-1. Download or clone this repository.
-2. Open `chrome://extensions` (or `edge://extensions`).
-3. Turn on **Developer mode**.
-4. Click **Load unpacked** and pick this folder.
-5. Play something on YouTube, Netflix or elsewhere. It's already working.
+1. Run `npm install && npm run build`, or download a release zip and unzip it.
+2. Open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**.
+3. Click **Load unpacked** and pick `dist/chromium` (or the repository root while developing).
 
 **Firefox**
 
 1. Open `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on** and pick `manifest.json`.
-3. Firefox asks for site access for Manifest V3 extensions: click the extension icon and allow it on all sites.
+2. Click **Load Temporary Add-on** and pick `dist/firefox/manifest.json`.
+
+**Safari** (needs a Mac with Xcode)
+
+```sh
+xcrun safari-web-extension-converter dist/safari --app-name "Steady Volume"
+```
+
+Open the generated Xcode project, run it, then enable Steady Volume in Safari › Settings › Extensions.
 
 ## Develop
 
 ```sh
 npm install
-npm test          # offline audio measurements + real-browser extension checks
+npm run build     # per-browser packages and zips in dist/
+npm test          # build, Firefox lint, offline audio measurements, real-browser checks
 npm run icons     # re-render icons/icon.svg to PNGs
-npm run package   # zip for the store: dist/steady-volume-<version>.zip
 ```
 
 | File | Purpose |
 |---|---|
 | `src/engine.js` | The audio chain and presets. Plain Web Audio, no dependencies. |
 | `src/content.js` | Runs on every page, finds players and routes them through the engine. |
+| `src/background.js` | Opens the welcome page on install. |
 | `popup/` | The toolbar popup: one big switch and three presets. |
+| `welcome/` | First-run page; grants site access where the browser requires it. |
+| `tools/build.mjs` | Builds the Chromium, Firefox and Safari packages from one source. |
 | `test/offline.test.mjs` | Renders a synthetic soundtrack and checks the numbers above. |
 | `test/extension.test.mjs` | Loads the extension into Chromium and checks it on real pages. |
 
@@ -71,7 +89,7 @@ npm run package   # zip for the store: dist/steady-volume-<version>.zip
 - **The first sound after opening a page may be unprocessed** until you click or press a key. Browsers don't let audio processing start without a user interaction. Pressing play counts, so in practice it's nearly always immediate.
 - **Sites that already use Web Audio on their player** are left alone.
 - **Tabs opened before install** need a reload.
-- **Safari** needs the extension wrapped in an Xcode project (`xcrun safari-web-extension-converter`) and published through the App Store.
+- **Safari's built-in HLS playback** (`.m3u8` streams) is skipped: WebKit gives Web Audio silence for it.
 - **Not yet tested by hand** on Netflix, Disney+, Prime Video and similar services. Streaming copy protection should not block this, since those services' audio reaches the page as ordinary Media Source streams, but this needs checking on each service before launch.
 
 ## Roadmap
@@ -79,5 +97,5 @@ npm run package   # zip for the store: dist/steady-volume-<version>.zip
 1. Hands-on check on the top streaming services; per-site tuning where needed.
 2. Store listings: Chrome Web Store, Edge Add-ons, Firefox Add-ons.
 3. "Off on this site" option.
-4. Safari build.
-5. Beyond the browser: TV is where most target users watch. Options are a smart-TV app, an HDMI audio box, or a guided setup for the TV's own night mode.
+4. Hands-on test of the Firefox and Safari builds; Safari App Store submission.
+5. The TV: see [docs/tv-options.md](docs/tv-options.md). In short, an audio box on the TV's HDMI ARC / optical / headphone output, validated first with a setup guide and a pre-order page.

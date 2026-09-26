@@ -58,6 +58,20 @@
     }
   }
 
+  const needsAccess = document.getElementById('needs-access');
+  document.getElementById('grant').addEventListener('click', async () => {
+    // Firefox closes the popup while its prompt is open; the welcome-page
+    // copy of this button covers that case.
+    if (await SteadyAccess.requestAccess()) {
+      needsAccess.hidden = true;
+      status.textContent = 'Done. Reload any page that already has a video.';
+    }
+  });
+
+  SteadyAccess.hasAccess().then((ok) => {
+    needsAccess.hidden = ok;
+  });
+
   api.storage.sync.get(settings).then((stored) => {
     Object.assign(settings, stored);
     render();

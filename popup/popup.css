@@ -125,6 +125,28 @@ legend {
 
 .preset strong { color: var(--text); }
 
+.access {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.access p { margin: 0 0 10px; }
+
+.grant {
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
 .status {
   min-height: 1.4em;
   margin: 8px 0 0;

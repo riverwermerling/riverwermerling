@@ -11,6 +11,11 @@
     <h1>Steady Volume</h1>
   </header>
 
+  <div id="needs-access" class="access" hidden>
+    <p>Your browser hasn&rsquo;t let Steady Volume work on websites yet.</p>
+    <button id="grant" class="grant">Allow on all websites</button>
+  </div>
+
   <button id="power" class="power" role="switch" aria-checked="true">
     <span class="power-state" id="power-state">On</span>
     <span class="power-hint" id="power-hint">Whispers and explosions kept at one level</span>
@@ -34,6 +39,7 @@
 
   <p class="status" id="status" aria-live="polite"></p>
 
+  <script src="access.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

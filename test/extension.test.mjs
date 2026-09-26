@@ -11,7 +11,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 
-const extensionPath = fileURLToPath(new URL('..', import.meta.url));
+// Test the built Chromium package, exactly as it would ship.
+const extensionPath = fileURLToPath(new URL('../dist/chromium', import.meta.url));
 
 // Two seconds of a quiet 440 Hz tone, as a WAV file.
 function toneWav() {
@@ -87,6 +88,14 @@ try {
     return id;
   })();
   assert.ok(extensionId, 'extension should load');
+
+  await check('welcome page opens on install and shows ready (no extra step on Chromium)', async () => {
+    const url = `chrome-extension://${extensionId}/welcome/welcome.html`;
+    const welcome = context.pages().find((p) => p.url() === url)
+      || await context.waitForEvent('page', { predicate: (p) => p.url() === url, timeout: 5000 });
+    await welcome.waitForFunction(() => !document.getElementById('ready').hidden, null, { timeout: 5000 });
+    assert.equal(await welcome.isHidden('#needs-access'), true);
+  });
 
   const page = await context.newPage();
   await page.goto(mainOrigin);
