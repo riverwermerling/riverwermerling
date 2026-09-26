@@ -21,7 +21,9 @@
     "service_worker": "src/background.js"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "tabCapture",
+    "offscreen"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -32,6 +34,7 @@
         "<all_urls>"
       ],
       "js": [
+        "src/sites.js",
         "src/engine.js",
         "src/content.js"
       ],
@@ -40,5 +43,5 @@
       "match_about_blank": true
     }
   ],
-  "minimum_chrome_version": "102"
+  "minimum_chrome_version": "116"
 }

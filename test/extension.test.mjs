@@ -9,6 +9,20 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+
+// Tab capture only carries sound in a real (headed) Chrome, so these tests
+// need a display. On a Linux machine without one (CI, containers), re-run
+// this file under a virtual display.
+if (process.platform === 'linux' && !process.env.DISPLAY) {
+  const xvfb = spawnSync('xvfb-run', ['-a', process.execPath, fileURLToPath(import.meta.url)], { stdio: 'inherit' });
+  if (xvfb.error) {
+    console.error('These tests need a display. Install xvfb (xvfb-run) or run them on a desktop.');
+    process.exit(1);
+  }
+  process.exit(xvfb.status ?? 1);
+}
 import assert from 'node:assert/strict';
 
 // Test the built Chromium package, exactly as it would ship.
@@ -46,6 +60,24 @@ const main = await serve((req, res) => {
     return res.end(wav);
   }
   res.writeHead(200, { 'content-type': 'text/html' });
+  if (req.url === '/protected') {
+    // A player that sets up copy protection (Clear Key DRM) before playing,
+    // as Netflix and similar services do.
+    return res.end(`<!doctype html>
+      <audio id="drm" src="/tone.wav" loop></audio>
+      <button id="play-drm">play</button>
+      <script>
+        document.getElementById('play-drm').onclick = async () => {
+          const el = document.getElementById('drm');
+          const access = await navigator.requestMediaKeySystemAccess('org.w3.clearkey', [{
+            initDataTypes: ['keyids'],
+            audioCapabilities: [{ contentType: 'audio/webm; codecs="opus"' }],
+          }]);
+          await el.setMediaKeys(await access.createMediaKeys());
+          el.play();
+        };
+      </script>`);
+  }
   res.end(`<!doctype html>
     <audio id="local" src="/tone.wav" loop></audio>
     <audio id="remote" src="${otherOrigin}/tone.wav" loop></audio>
@@ -54,13 +86,21 @@ const main = await serve((req, res) => {
 });
 const mainOrigin = `http://127.0.0.1:${main.address().port}`;
 
+// Chrome derives an unpacked extension's ID from its folder path. Knowing it
+// up front lets us allow tab capture without a real click on the toolbar
+// icon, which automation can't do.
+const extensionId = [...createHash('sha256').update(extensionPath).digest('hex').slice(0, 32)]
+  .map((c) => String.fromCharCode(97 + parseInt(c, 16)))
+  .join('');
+
 const userDataDir = mkdtempSync(join(tmpdir(), 'steady-'));
 const context = await chromium.launchPersistentContext(userDataDir, {
   channel: 'chromium',
-  headless: true,
+  headless: false,
   args: [
     `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
+    `--allowlisted-extension-id=${extensionId}`,
   ],
 });
 
@@ -76,8 +116,7 @@ async function check(name, fn) {
 }
 
 try {
-  const extensionId = await (async () => {
-    // No background worker; find the ID from the extensions page instead.
+  const loadedId = await (async () => {
     const p = await context.newPage();
     await p.goto('chrome://extensions');
     const id = await p.evaluate(async () => {
@@ -87,7 +126,7 @@ try {
     await p.close();
     return id;
   })();
-  assert.ok(extensionId, 'extension should load');
+  assert.equal(loadedId, extensionId, 'extension should load with the expected ID');
 
   await check('welcome page opens on install and shows ready (no extra step on Chromium)', async () => {
     const url = `chrome-extension://${extensionId}/welcome/welcome.html`;
@@ -121,6 +160,16 @@ try {
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`);
 
+  await check('page reports live before/after levels for the popup graph', async () => {
+    const reply = await popup.evaluate(async (origin) => {
+      const [tab] = await chrome.tabs.query({ url: origin + '/*' });
+      return chrome.tabs.sendMessage(tab.id, { type: 'steady:status' });
+    }, mainOrigin);
+    assert.ok(reply.active >= 1, `active ${reply.active}`);
+    assert.ok(reply.meter && reply.meter.inDb > -60, `input level ${reply.meter && reply.meter.inDb}`);
+    assert.ok(reply.meter.outDb > -60, `output level ${reply.meter.outDb} (sound must come out)`);
+  });
+
   await check('popup starts On with Balanced selected', async () => {
     await popup.waitForFunction(() => document.querySelector('input[value="balanced"]').checked);
     assert.equal(await popup.getAttribute('#power', 'aria-checked'), 'true');
@@ -142,6 +191,64 @@ try {
     await popup.waitForFunction(() => document.querySelector('input[value="night"]').checked, null, { timeout: 5000 });
   });
 
+  // Copy protection. Runs on "localhost" so what the extension learns about
+  // this site doesn't affect the 127.0.0.1 checks.
+  const protectedOrigin = mainOrigin.replace('127.0.0.1', 'localhost');
+  const drmPage = await context.newPage();
+  await drmPage.goto(protectedOrigin + '/protected');
+
+  await check('copy-protected media is never captured (it would go silent)', async () => {
+    await drmPage.click('#play-drm');
+    await drmPage.waitForFunction(() => document.getElementById('drm').dataset.steady === 'protected', null, { timeout: 5000 });
+    assert.equal(await drmPage.evaluate(() => document.getElementById('drm').paused), false);
+  });
+
+  await check('a copy-protected site is remembered for next time', async () => {
+    const learned = await popup.evaluate(async () => (await chrome.storage.local.get('learnedProtected')).learnedProtected);
+    assert.ok(learned && learned.includes('localhost'), `learned: ${JSON.stringify(learned)}`);
+  });
+
+  await check('page tells the popup it is a protected site', async () => {
+    const reply = await popup.evaluate(async (origin) => {
+      const [tab] = await chrome.tabs.query({ url: origin + '/*' });
+      return chrome.tabs.sendMessage(tab.id, { type: 'steady:status' });
+    }, protectedOrigin);
+    assert.equal(reply.protectedSite, true);
+  });
+
+  await check('tab mode processes a protected tab and sound comes out', async () => {
+    const result = await popup.evaluate(async (origin) => {
+      const [tab] = await chrome.tabs.query({ url: origin + '/*' });
+      const streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });
+      const start = await chrome.runtime.sendMessage({ target: 'background', type: 'tab:start', tabId: tab.id, streamId });
+      await new Promise((r) => setTimeout(r, 800));
+      const status = await chrome.runtime.sendMessage({ target: 'background', type: 'tab:status', tabId: tab.id });
+      return { start, status };
+    }, protectedOrigin);
+    assert.ok(result.start && result.start.ok, `start: ${JSON.stringify(result.start)}`);
+    assert.equal(result.status.active, true);
+    assert.ok(result.status.meter.inDb > -60, `tab input level ${result.status.meter.inDb} (${JSON.stringify(result.status)})`);
+    assert.ok(result.status.meter.outDb > -60, `tab output level ${result.status.meter.outDb}`);
+  });
+
+  await check('tab mode survives switching Off and back On', async () => {
+    await popup.click('#power');
+    await popup.waitForTimeout(300);
+    await popup.click('#power');
+    const status = await popup.evaluate(async (origin) => {
+      const [tab] = await chrome.tabs.query({ url: origin + '/*' });
+      return chrome.runtime.sendMessage({ target: 'background', type: 'tab:status', tabId: tab.id });
+    }, protectedOrigin);
+    assert.equal(status.active, true);
+  });
+
+  await check('closing the tab ends tab mode cleanly', async () => {
+    await drmPage.close();
+    await popup.waitForTimeout(500);
+    const contexts = await popup.evaluate(() => chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] }));
+    assert.equal(contexts.length, 0, 'hidden tab-mode page should close when no tabs use it');
+  });
+
   await check('no errors from the extension in the page console', async () => {
     const errors = [];
     const p = await context.newPage();
@@ -153,6 +260,20 @@ try {
     assert.deepEqual(errors, []);
     await p.close();
   });
+
+  // Last: this marks 127.0.0.1 as protected.
+  await check('protection starting mid-playback shows a reload notice', async () => {
+    // A site that plays unprotected video, then switches to protected.
+    const p = await context.newPage();
+    await p.goto(mainOrigin);
+    await p.click('#play-local');
+    await p.waitForFunction(() => document.getElementById('local').dataset.steady === 'on');
+    const before = await p.evaluate(() => document.documentElement.children.length);
+    await p.evaluate(() => document.getElementById('local').dispatchEvent(new Event('encrypted')));
+    await p.waitForFunction((n) => document.documentElement.children.length > n, before, { timeout: 3000 });
+    await p.close();
+  });
+
 } finally {
   await context.close();
   main.close();

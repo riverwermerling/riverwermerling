@@ -75,6 +75,8 @@
   const FALL_DB_PER_SEC = 18; // pull loud scenes down quickly
   const LEVEL_SMOOTHING_SEC = 0.4;
 
+  const MIN_VOLUME = 0.01; // -40 dB; below this we stop compensating
+
   const dbToGain = (db) => Math.pow(10, db / 20);
   const gainToDb = (g) => 20 * Math.log10(Math.max(g, 1e-9));
 
@@ -121,7 +123,22 @@
     const wet = ctx.createGain();
     const dry = ctx.createGain();
 
-    input.connect(highpass);
+    // Meters for the popup: what the film sends vs. what you hear.
+    const meterIn = ctx.createAnalyser();
+    const meterOut = ctx.createAnalyser();
+    meterIn.fftSize = meterOut.fftSize = 2048;
+    const meterBuf = new Float32Array(2048);
+
+    // Browsers apply the player's own volume slider before the audio reaches
+    // us. We undo it on the way in and reapply it on the way out, so the
+    // processing sees the film at its real level and the slider still works
+    // exactly as the viewer expects. Without this, turning the player down
+    // would make the leveler turn it straight back up.
+    const volumeUndo = ctx.createGain();
+    const volumeRedo = ctx.createGain();
+
+    input.connect(volumeUndo);
+    volumeUndo.connect(highpass);
     highpass.connect(presence);
     presence.connect(analyser);
     presence.connect(leveler);
@@ -129,10 +146,13 @@
     compressor.connect(makeup);
     makeup.connect(limiter);
     limiter.connect(ceiling);
-    ceiling.connect(wet);
+    ceiling.connect(volumeRedo);
+    volumeRedo.connect(wet);
     wet.connect(output);
     input.connect(dry);
     dry.connect(output);
+    input.connect(meterIn);
+    output.connect(meterOut);
 
     let levelDb = null;
     let levelerDb = 0;
@@ -159,10 +179,7 @@
 
     // Call regularly (~10x a second). dtSec is time since the last call.
     function tick(dtSec) {
-      analyser.getFloatTimeDomainData(analyserBuf);
-      let sum = 0;
-      for (let i = 0; i < analyserBuf.length; i++) sum += analyserBuf[i] * analyserBuf[i];
-      const blockDb = gainToDb(Math.sqrt(sum / analyserBuf.length));
+      const blockDb = rmsDb(analyser, analyserBuf);
 
       if (blockDb < GATE_DB) return; // silence: hold the current gain
 
@@ -198,9 +215,25 @@
         preset = PRESETS[name];
         applyPreset();
       },
+      // The media element's volume, 0-1. Muted or zero is ignored: there is
+      // no signal to correct, and we keep the last setting for when it returns.
+      setVolume(volume) {
+        if (!(volume > 0)) return;
+        const v = Math.max(volume, MIN_VOLUME);
+        const t = ctx.currentTime;
+        setParam(volumeUndo.gain, 1 / v, t, 0.01);
+        setParam(volumeRedo.gain, v, t, 0.01);
+      },
       setEnabled(on) {
         enabled = !!on;
         applyEnabled(false);
+      },
+      // Current loudness in dBFS before and after processing.
+      meter() {
+        return {
+          inDb: rmsDb(meterIn, meterBuf),
+          outDb: rmsDb(meterOut, meterBuf),
+        };
       },
       get stats() {
         return {
@@ -218,6 +251,13 @@
   function limiterMakeupDb(thresholdDb) {
     const fullRangeDb = thresholdDb + (0 - thresholdDb) / 20;
     return -fullRangeDb * 0.6;
+  }
+
+  function rmsDb(analyserNode, buf) {
+    analyserNode.getFloatTimeDomainData(buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    return gainToDb(Math.sqrt(sum / buf.length));
   }
 
   function setParam(param, value, t, timeConstant) {

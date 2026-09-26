@@ -15,11 +15,19 @@ const root = new URL('..', import.meta.url).pathname;
 const base = JSON.parse(readFileSync(root + 'manifest.json', 'utf8'));
 const FILES = ['src', 'popup', 'welcome', 'icons'];
 
+// Tab mode (for copy-protected sites) uses Chrome-only APIs.
+const CHROME_ONLY_PERMISSIONS = ['tabCapture', 'offscreen'];
+const withoutChromeOnly = (m) => {
+  delete m.minimum_chrome_version;
+  m.permissions = m.permissions.filter((p) => !CHROME_ONLY_PERMISSIONS.includes(p));
+  return m;
+};
+
 const targets = {
   chromium: (m) => m,
 
   firefox: (m) => {
-    delete m.minimum_chrome_version;
+    withoutChromeOnly(m);
     // Firefox runs background pages, not service workers.
     m.background = { scripts: ['src/background.js'] };
     m.browser_specific_settings = {
@@ -34,7 +42,7 @@ const targets = {
   },
 
   safari: (m) => {
-    delete m.minimum_chrome_version;
+    withoutChromeOnly(m);
     m.background = { scripts: ['src/background.js'], persistent: false };
     m.browser_specific_settings = { safari: { strict_min_version: '16.4' } };
     return m;

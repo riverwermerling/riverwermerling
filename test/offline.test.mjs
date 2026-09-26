@@ -61,16 +61,19 @@ const results = await page.evaluate(async (scenes) => {
     pos += n;
   }
 
-  async function render(presetName) {
+  // volume simulates the player's own volume slider, which browsers apply
+  // before the audio reaches the extension.
+  async function render(presetName, volume = 1) {
     const ctx = new OfflineAudioContext(1, len, SR);
     const buf = ctx.createBuffer(1, len, SR);
-    buf.copyToChannel(signal, 0);
+    buf.copyToChannel(signal.map((x) => x * volume), 0);
     const src = ctx.createBufferSource();
     src.buffer = buf;
     if (!presetName) {
       src.connect(ctx.destination);
     } else {
       const eng = SteadyEngine.createSteadyEngine(ctx, { preset: presetName });
+      eng.setVolume(volume);
       src.connect(eng.input);
       eng.output.connect(ctx.destination);
       const step = 0.1;
@@ -104,6 +107,7 @@ const results = await page.evaluate(async (scenes) => {
 
   const out = { dry: measure(await render(null)) };
   for (const p of Object.keys(SteadyEngine.PRESETS)) out[p] = measure(await render(p));
+  out.balancedAtTenPercent = measure(await render('balanced', 0.1));
   return out;
 }, SCENES);
 
@@ -134,6 +138,14 @@ for (const [name, preset] of Object.entries(PRESETS)) {
   assert.ok(gap < dryGap * 0.6, `${name}: gap ${gap.toFixed(1)} dB should be well under dry ${dryGap.toFixed(1)} dB`);
   assert.ok(maxPeak <= preset.ceilingDb + 1.5, `${name}: peak ${maxPeak} dB exceeds ceiling ${preset.ceilingDb} dB`);
 }
+// Turning the player's volume to 10% must make everything 20 dB quieter,
+// scene by scene. The leveler must not fight the viewer's volume slider.
+results.balanced.forEach((full, i) => {
+  const low = results.balancedAtTenPercent[i];
+  const drop = full.rmsDb - low.rmsDb;
+  assert.ok(Math.abs(drop - 20) <= 1, `${full.name}: 10% volume should be 20 dB quieter, was ${drop.toFixed(1)} dB`);
+});
+
 // The main promise: Night mode keeps the whole film within a narrow window.
 assert.ok(spread(results.night) <= 12, `night gap ${spread(results.night).toFixed(1)} dB should be <= 12 dB`);
 

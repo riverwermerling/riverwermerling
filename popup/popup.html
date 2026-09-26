@@ -6,35 +6,54 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <header>
-    <img src="../icons/icon48.png" alt="" width="32" height="32">
+  <header class="top">
+    <img src="../icons/icon48.png" alt="" width="28" height="28">
     <h1>Steady Volume</h1>
+    <span class="pill" id="pill"><span class="dot"></span><span id="pill-text">Ready</span></span>
   </header>
 
-  <div id="needs-access" class="access" hidden>
+  <div id="needs-access" class="card access" hidden>
     <p>Your browser hasn&rsquo;t let Steady Volume work on websites yet.</p>
-    <button id="grant" class="grant">Allow on all websites</button>
+    <button id="grant" class="button">Allow on all websites</button>
   </div>
 
-  <button id="power" class="power" role="switch" aria-checked="true">
-    <span class="power-state" id="power-state">On</span>
-    <span class="power-hint" id="power-hint">Whispers and explosions kept at one level</span>
+  <button id="power" class="card power" role="switch" aria-checked="true">
+    <span class="power-text">
+      <span class="power-title" id="power-title">On</span>
+      <span class="power-hint" id="power-hint">Whispers up, explosions down</span>
+    </span>
+    <span class="switch" aria-hidden="true"><span class="knob"></span></span>
   </button>
 
-  <fieldset id="presets">
-    <legend>How much evening-out?</legend>
-    <label class="preset">
-      <input type="radio" name="preset" value="gentle">
-      <span><strong>Gentle</strong>Takes the edge off. The film still sounds like the film.</span>
-    </label>
-    <label class="preset">
-      <input type="radio" name="preset" value="balanced">
-      <span><strong>Balanced</strong>No more reaching for the remote. Best for most people.</span>
-    </label>
-    <label class="preset">
-      <input type="radio" name="preset" value="night">
-      <span><strong>Night</strong>Clear voices, soft bangs. For late nights and sensitive ears.</span>
-    </label>
+  <section class="card tabmode" id="tabmode" hidden>
+    <div class="tabmode-text">
+      <h2 class="tabmode-title" id="tabmode-title">This site needs one click</h2>
+      <p id="tabmode-body"></p>
+    </div>
+    <button class="button" id="tabmode-button">Turn on for this tab</button>
+  </section>
+
+  <section class="card graph-card" aria-labelledby="graph-title">
+    <div class="graph-head">
+      <h2 id="graph-title">Right now</h2>
+      <span class="legend">
+        <span class="key key-in"></span>Film
+        <span class="key key-out"></span>You hear
+      </span>
+    </div>
+    <canvas id="graph" width="656" height="200" aria-hidden="true"></canvas>
+    <p class="graph-note" id="graph-note">Play a video to see it working.</p>
+  </section>
+
+  <fieldset class="card strength" id="presets">
+    <legend>Strength</legend>
+    <div class="segments" role="radiogroup">
+      <span class="thumb" aria-hidden="true"></span>
+      <label><input type="radio" name="preset" value="gentle"><span>Gentle</span></label>
+      <label><input type="radio" name="preset" value="balanced"><span>Balanced</span></label>
+      <label><input type="radio" name="preset" value="night"><span>Night</span></label>
+    </div>
+    <p class="preset-hint" id="preset-hint"></p>
   </fieldset>
 
   <p class="status" id="status" aria-live="polite"></p>
