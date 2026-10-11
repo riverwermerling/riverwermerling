@@ -1,0 +1,62 @@
+# Publishes french-drill/ to GitHub Pages (HTTPS is required for install + push notifications).
+# One-time setup: Settings -> Pages -> Source: "GitHub Actions".
+# Optional repo variables (Settings -> Secrets and variables -> Actions -> Variables) fill config.js at deploy time:
+#   SUPABASE_URL, SUPABASE_ANON_KEY, VAPID_PUBLIC_KEY   (all three are public by design; never add the service-role key)
+name: Deploy French Drill
+
+on:
+  push:
+    branches: [main]
+    paths: ['french-drill/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: french-drill-pages
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+        working-directory: french-drill
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write config.js from repository variables
+        if: ${{ vars.SUPABASE_URL != '' }}
+        run: |
+          cat > french-drill/config.js <<EOF2
+          window.FRENCH_DRILL_CONFIG = {
+            SUPABASE_URL: '${{ vars.SUPABASE_URL }}',
+            SUPABASE_ANON_KEY: '${{ vars.SUPABASE_ANON_KEY }}',
+            VAPID_PUBLIC_KEY: '${{ vars.VAPID_PUBLIC_KEY }}',
+          };
+          EOF2
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp -r french-drill/index.html french-drill/styles.css french-drill/config.js french-drill/sw.js \
+                french-drill/manifest.webmanifest french-drill/js french-drill/icons _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

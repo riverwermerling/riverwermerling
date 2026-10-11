@@ -1,0 +1,15 @@
+{
+  "name": "french-drill",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Spaced-repetition French verb and vocabulary drill with push reminders.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "node tools/serve.mjs",
+    "icons": "node tools/make-icons.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
