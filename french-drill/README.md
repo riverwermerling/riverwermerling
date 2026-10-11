@@ -66,6 +66,8 @@ supabase secrets set VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... \
 supabase functions deploy send-reminders
 ```
 
+**No terminal?** Skip the `supabase` commands: in the Dashboard go to Edge Functions → Deploy a new function → Via Editor, name it `send-reminders`, paste `supabase/paste-into-dashboard/send-reminders.ts`, and add the four values above under Edge Functions → Secrets.
+
 Then in the Dashboard: **Database → Extensions → enable `pg_cron` and `pg_net`**, open `supabase/cron.sql`, replace the two placeholders (project URL, service-role key) and run it. That schedules the function every 15 minutes; it checks each user's local time against their reminder times and sends a push only if something is due.
 
 Finally, open the app **on your phone → Settings → Account** (sign in) **→ Reminders → Enable reminders**. Set your times (defaults 08:00 and 19:30) and time zone.

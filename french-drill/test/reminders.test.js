@@ -44,3 +44,10 @@ test('does not send twice within 10 minutes', () => {
   assert.ok(shouldSend({ ...base, last_push_at: '2026-10-10T18:35:00Z' }, now));
   assert.equal(shouldSend(base, new Date('2026-10-11T10:00:00Z')), null);
 });
+
+test('dashboard paste file is up to date with the function source', async () => {
+  const { build, outFile } = await import('../tools/bundle-function.mjs');
+  const { readFileSync } = await import('node:fs');
+  assert.equal(readFileSync(outFile, 'utf8'), build(), 'run: node tools/bundle-function.mjs');
+  assert.doesNotMatch(build(), /from '\.\/schedule\.ts'/);
+});
